@@ -1,25 +1,18 @@
 {
-  "title": "CUPS Print Server",
   "config": {
     "step": {
       "user": {
-        "title": "Connect to CUPS Print Server",
-        "description": "Enter the address of your CUPS server. Printer queues are discovered automatically.",
+        "title": "CUPS Print Server",
+        "description": "Connect Home Assistant to your CUPS print server.",
         "data": {
           "host": "Host",
           "port": "Port",
           "use_ssl": "Use SSL"
-        },
-        "data_description": {
-          "host": "IP address or hostname of the CUPS server.",
-          "port": "IPP port. The default CUPS port is 631.",
-          "use_ssl": "Use HTTPS/IPPS for the connection."
         }
       }
     },
     "error": {
-      "cannot_connect": "Unable to connect to the CUPS server.",
-      "no_printers": "Connected to CUPS, but no printer queues could be found.",
+      "cannot_connect": "Failed to connect to the CUPS server.",
       "unknown": "Unexpected error."
     },
     "abort": {
@@ -31,16 +24,17 @@
       "printer_state": {
         "name": "Status",
         "state": {
-          "idle": "Idle",
+          "idle": "Ready",
           "processing": "Printing",
-          "stopped": "Stopped"
+          "stopped": "Stopped",
+          "unknown": "Unknown"
         }
       },
       "queued_jobs": {
         "name": "Queued jobs"
       },
       "current_job": {
-        "name": "Current job"
+        "name": "Current print job"
       },
       "current_job_id": {
         "name": "Current job ID"
@@ -48,21 +42,22 @@
       "current_job_state": {
         "name": "Current job status",
         "state": {
+          "idle": "Idle",
           "pending": "Pending",
           "pending_held": "Held",
           "processing": "Printing",
           "processing_stopped": "Printing stopped",
           "canceled": "Canceled",
-          "aborted": "Aborted",
+          "aborted": "Failed",
           "completed": "Completed",
           "unknown": "Unknown"
         }
       },
       "pages_completed": {
-        "name": "Pages completed"
+        "name": "Printed pages"
       },
       "last_job": {
-        "name": "Last job"
+        "name": "Last print job"
       },
       "last_job_time": {
         "name": "Last print time"
