@@ -39,6 +39,7 @@ JOB_STATES = {
 }
 
 JOB_STATE_OPTIONS = [
+    "idle",
     "pending",
     "pending_held",
     "processing",
@@ -196,7 +197,7 @@ class CupsSensor(CoordinatorEntity[CupsCoordinator], SensorEntity):
 
         if self.key == "current_job_state":
             if not current:
-                return None
+                return "idle"
 
             try:
                 state = int(current.get("job-state", 0))
