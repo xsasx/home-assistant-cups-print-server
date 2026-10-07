@@ -50,20 +50,48 @@ JOB_STATE_OPTIONS = [
 ]
 
 
+def _valid_job_name(value: Any) -> str | None:
+    """Return a usable job name or None."""
+    if not isinstance(value, str):
+        return None
+
+    value = value.strip()
+
+    if not value:
+        return None
+
+    if value.lower() in {
+        "unknown",
+        "unbekannt",
+        "none",
+        "null",
+        "n/a",
+    }:
+        return None
+
+    return value
+
+
 def _job_name(job: dict[str, Any] | None) -> str | None:
     """Return the best available display name for a print job."""
     if not job:
         return None
 
-    return (
-        job.get("job-name")
-        or job.get("document-name-supplied")
-        or (
-            f"Job {job.get('job-id')}"
-            if job.get("job-id") is not None
-            else None
-        )
+    job_name = _valid_job_name(job.get("job-name"))
+    if job_name:
+        return job_name
+
+    document_name = _valid_job_name(
+        job.get("document-name-supplied")
     )
+    if document_name:
+        return document_name
+
+    job_id = job.get("job-id")
+    if job_id is not None:
+        return f"Job {job_id}"
+
+    return None
 
 
 def _parse_datetime(value: Any) -> datetime | None:
