@@ -3,7 +3,7 @@
   "config": {
     "step": {
       "user": {
-        "title": "CUPS Print Server verbinden",
+        "title": "Mit CUPS Print Server verbinden",
         "description": "Gib die Adresse deines CUPS-Servers ein. Die Druckerwarteschlangen werden automatisch erkannt.",
         "data": {
           "host": "Host",
@@ -18,8 +18,8 @@
       }
     },
     "error": {
-      "cannot_connect": "Verbindung zum CUPS-Server nicht möglich.",
-      "no_printers": "CUPS ist erreichbar, aber es wurden keine Druckerwarteschlangen gefunden.",
+      "cannot_connect": "Verbindung zum CUPS-Server konnte nicht hergestellt werden.",
+      "no_printers": "Verbindung zu CUPS hergestellt, aber es wurden keine Druckerwarteschlangen gefunden.",
       "unknown": "Unerwarteter Fehler."
     },
     "abort": {
@@ -29,7 +29,12 @@
   "entity": {
     "sensor": {
       "printer_state": {
-        "name": "Status"
+        "name": "Status",
+        "state": {
+          "idle": "Bereit",
+          "processing": "Druckt",
+          "stopped": "Gestoppt"
+        }
       },
       "queued_jobs": {
         "name": "Druckjobs in Warteschlange"
@@ -41,10 +46,20 @@
         "name": "Aktuelle Job-ID"
       },
       "current_job_state": {
-        "name": "Aktueller Jobstatus"
+        "name": "Aktueller Jobstatus",
+        "state": {
+          "pending": "Wartend",
+          "pending_held": "Zurückgehalten",
+          "processing": "Wird gedruckt",
+          "processing_stopped": "Druck angehalten",
+          "canceled": "Abgebrochen",
+          "aborted": "Fehlgeschlagen",
+          "completed": "Abgeschlossen",
+          "unknown": "Unbekannt"
+        }
       },
       "pages_completed": {
-        "name": "Seiten fertig"
+        "name": "Gedruckte Seiten"
       },
       "last_job": {
         "name": "Letzter Druckjob"
