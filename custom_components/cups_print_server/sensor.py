@@ -21,6 +21,13 @@ PRINTER_STATES = {
     5: "stopped",
 }
 
+PRINTER_STATE_OPTIONS = [
+    "idle",
+    "processing",
+    "stopped",
+    "unknown",
+]
+
 JOB_STATES = {
     3: "pending",
     4: "pending_held",
@@ -30,6 +37,17 @@ JOB_STATES = {
     8: "aborted",
     9: "completed",
 }
+
+JOB_STATE_OPTIONS = [
+    "pending",
+    "pending_held",
+    "processing",
+    "processing_stopped",
+    "canceled",
+    "aborted",
+    "completed",
+    "unknown",
+]
 
 
 def _job_name(job: dict[str, Any] | None) -> str | None:
@@ -86,6 +104,14 @@ class CupsSensor(CoordinatorEntity[CupsCoordinator], SensorEntity):
         if key == "last_job_time":
             self._attr_device_class = SensorDeviceClass.TIMESTAMP
 
+        elif key == "printer_state":
+            self._attr_device_class = SensorDeviceClass.ENUM
+            self._attr_options = PRINTER_STATE_OPTIONS
+
+        elif key == "current_job_state":
+            self._attr_device_class = SensorDeviceClass.ENUM
+            self._attr_options = JOB_STATE_OPTIONS
+
     @property
     def device_info(self) -> DeviceInfo:
         """Return device information."""
@@ -119,11 +145,12 @@ class CupsSensor(CoordinatorEntity[CupsCoordinator], SensorEntity):
         last = queue_data["last_job"]
 
         if self.key == "printer_state":
-            state = int(printer.get("printer-state", 0))
-            return PRINTER_STATES.get(
-                state,
-                str(printer.get("printer-state", "unknown")),
-            )
+            try:
+                state = int(printer.get("printer-state", 0))
+            except (TypeError, ValueError):
+                return "unknown"
+
+            return PRINTER_STATES.get(state, "unknown")
 
         if self.key == "queued_jobs":
             return int(
@@ -143,7 +170,11 @@ class CupsSensor(CoordinatorEntity[CupsCoordinator], SensorEntity):
             if not current:
                 return None
 
-            state = int(current.get("job-state", 0))
+            try:
+                state = int(current.get("job-state", 0))
+            except (TypeError, ValueError):
+                return "unknown"
+
             return JOB_STATES.get(state, "unknown")
 
         if self.key == "pages_completed":
