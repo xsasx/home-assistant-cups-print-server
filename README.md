@@ -4,6 +4,14 @@ A custom Home Assistant integration for monitoring CUPS print servers, printer q
 
 > **Status:** v0.1.0-beta.1 – first public beta.
 
+## ☕ Support the project
+
+If this integration is useful to you and you'd like to support its development, you can buy me a coffee. ☕
+
+[![Support me on Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/xsas1337)
+
+Thank you for your support! ❤️
+
 ## Features
 
 - UI setup through Home Assistant Config Flow
