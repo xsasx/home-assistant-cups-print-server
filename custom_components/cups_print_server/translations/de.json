@@ -1,0 +1,57 @@
+{
+  "title": "CUPS Print Server",
+  "config": {
+    "step": {
+      "user": {
+        "title": "CUPS Print Server verbinden",
+        "description": "Gib die Adresse deines CUPS-Servers ein. Die Druckerwarteschlangen werden automatisch erkannt.",
+        "data": {
+          "host": "Host",
+          "port": "Port",
+          "use_ssl": "SSL verwenden"
+        },
+        "data_description": {
+          "host": "IP-Adresse oder Hostname des CUPS-Servers.",
+          "port": "IPP-Port. Der Standardport von CUPS ist 631.",
+          "use_ssl": "HTTPS/IPPS für die Verbindung verwenden."
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Verbindung zum CUPS-Server nicht möglich.",
+      "no_printers": "CUPS ist erreichbar, aber es wurden keine Druckerwarteschlangen gefunden.",
+      "unknown": "Unerwarteter Fehler."
+    },
+    "abort": {
+      "already_configured": "Dieser CUPS-Server ist bereits eingerichtet."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "printer_state": {
+        "name": "Status"
+      },
+      "queued_jobs": {
+        "name": "Druckjobs in Warteschlange"
+      },
+      "current_job": {
+        "name": "Aktueller Druckjob"
+      },
+      "current_job_id": {
+        "name": "Aktuelle Job-ID"
+      },
+      "current_job_state": {
+        "name": "Aktueller Jobstatus"
+      },
+      "pages_completed": {
+        "name": "Seiten fertig"
+      },
+      "last_job": {
+        "name": "Letzter Druckjob"
+      },
+      "last_job_time": {
+        "name": "Letzte Druckzeit"
+      }
+    }
+  }
+}

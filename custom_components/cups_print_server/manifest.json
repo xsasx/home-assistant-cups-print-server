@@ -1,0 +1,14 @@
+{
+  "domain": "cups_print_server",
+  "name": "CUPS Print Server",
+  "codeowners": [
+    "@xsasx"
+  ],
+  "config_flow": true,
+  "documentation": "https://github.com/xsasx/home-assistant-cups-print-server",
+  "issue_tracker": "https://github.com/xsasx/home-assistant-cups-print-server/issues",
+  "integration_type": "hub",
+  "iot_class": "local_polling",
+  "requirements": [],
+  "version": "0.1.0-beta.1"
+}
