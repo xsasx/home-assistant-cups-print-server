@@ -154,7 +154,7 @@ to:
 
 Your directory should look like this:
 
-```text
+~~~text
 /config/
 └── custom_components/
     └── cups_print_server/
@@ -171,3 +171,100 @@ Your directory should look like this:
         └── translations/
             ├── de.json
             └── en.json
+~~~
+
+Restart Home Assistant and add the integration through:
+
+**Settings → Devices & services → Add integration → CUPS Print Server**
+
+---
+
+## ⚙️ Requirements
+
+You need:
+
+- A running CUPS server
+- Network access from Home Assistant to the CUPS server
+- IPP access to CUPS
+- At least one configured CUPS printer queue
+
+The standard CUPS/IPP port is TCP **631**.
+
+The integration does **not** require SSH access to the CUPS server.
+
+---
+
+## 🔒 Local communication
+
+CUPS Print Server communicates directly between Home Assistant and your CUPS server.
+
+No external cloud service is required.
+
+Your print-job information remains inside your local network unless your own Home Assistant or CUPS setup exposes it elsewhere.
+
+---
+
+## 🌍 Languages
+
+Currently included:
+
+- 🇬🇧 English
+- 🇩🇪 German
+
+Additional translations are welcome.
+
+---
+
+## 🚧 Beta notice
+
+This is the first public beta.
+
+The integration is already usable for monitoring CUPS printers and print jobs, but there may still be CUPS versions, printer drivers or print clients that expose IPP information differently.
+
+If you find a problem, please open a GitHub issue and include:
+
+- Home Assistant version
+- CUPS version
+- Printer model
+- Relevant diagnostics
+- Description of how the print job was submitted
+
+Please remove any private information before posting diagnostics publicly.
+
+---
+
+## 🗺️ Planned features
+
+Possible future additions include:
+
+- Cancel active print jobs
+- Pause printer queues
+- Resume printer queues
+- Improved print-job history
+- Additional queue statistics
+- More CUPS/IPP attributes
+- Additional translations
+
+Suggestions and pull requests are welcome.
+
+---
+
+## 🐛 Issues & feature requests
+
+Found a bug or have an idea?
+
+Please use the [GitHub issue tracker](https://github.com/xsasx/home-assistant-cups-print-server/issues).
+
+---
+
+## ❤️ Contributing
+
+Bug reports, feature requests, translations and pull requests are welcome.
+
+If you're testing the integration with another CUPS setup or printer model, feedback is especially useful during the beta phase.
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License.
