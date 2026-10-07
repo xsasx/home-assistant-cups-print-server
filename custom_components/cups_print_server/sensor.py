@@ -5,9 +5,8 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Any
 
-from homeassistant.components.sensor import SensorEntity
+from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import EntityCategory
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
@@ -16,7 +15,12 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from .const import DOMAIN
 from .coordinator import CupsCoordinator
 
-PRINTER_STATES = {3: "idle", 4: "processing", 5: "stopped"}
+PRINTER_STATES = {
+    3: "idle",
+    4: "processing",
+    5: "stopped",
+}
+
 JOB_STATES = {
     3: "pending",
     4: "pending_held",
@@ -29,85 +33,189 @@ JOB_STATES = {
 
 
 def _job_name(job: dict[str, Any] | None) -> str | None:
+    """Return the best available display name for a print job."""
     if not job:
         return None
+
     return (
         job.get("job-name")
         or job.get("document-name-supplied")
-        or (f"Job {job.get('job-id')}" if job.get("job-id") is not None else None)
+        or (
+            f"Job {job.get('job-id')}"
+            if job.get("job-id") is not None
+            else None
+        )
     )
 
 
+def _parse_datetime(value: Any) -> datetime | None:
+    """Convert an IPP date/time value into a Home Assistant timestamp."""
+    if not isinstance(value, str) or not value:
+        return None
+
+    try:
+        return datetime.fromisoformat(value.replace("Z", "+00:00"))
+    except ValueError:
+        return None
+
+
 class CupsSensor(CoordinatorEntity[CupsCoordinator], SensorEntity):
-    """Base CUPS sensor."""
+    """Representation of a CUPS sensor."""
 
     _attr_has_entity_name = True
 
-    def __init__(self, coordinator: CupsCoordinator, queue: str, key: str, name: str, icon: str) -> None:
+    def __init__(
+        self,
+        coordinator: CupsCoordinator,
+        queue: str,
+        key: str,
+        icon: str,
+    ) -> None:
+        """Initialize the sensor."""
         super().__init__(coordinator)
+
         self.queue = queue
         self.key = key
+
         self._attr_translation_key = key
-        self._attr_name = name
         self._attr_icon = icon
-        self._attr_unique_id = f"{coordinator.entry.entry_id}_{queue}_{key}"
+        self._attr_unique_id = (
+            f"{coordinator.entry.entry_id}_{queue}_{key}"
+        )
+
+        if key == "last_job_time":
+            self._attr_device_class = SensorDeviceClass.TIMESTAMP
 
     @property
     def device_info(self) -> DeviceInfo:
+        """Return device information."""
         data = self.coordinator.data["queues"][self.queue]["printer"]
+
         return DeviceInfo(
-            identifiers={(DOMAIN, f"{self.coordinator.entry.entry_id}_{self.queue}")},
+            identifiers={
+                (
+                    DOMAIN,
+                    f"{self.coordinator.entry.entry_id}_{self.queue}",
+                )
+            },
             name=data.get("printer-info") or self.queue,
             manufacturer="CUPS",
             model=data.get("printer-make-and-model") or "CUPS Printer",
             configuration_url=(
                 f"{'https' if self.coordinator.entry.data.get('use_ssl') else 'http'}://"
-                f"{self.coordinator.entry.data['host']}:{self.coordinator.entry.data.get('port', 631)}"
+                f"{self.coordinator.entry.data['host']}:"
+                f"{self.coordinator.entry.data.get('port', 631)}"
                 f"/printers/{self.queue}"
             ),
         )
 
     @property
     def native_value(self) -> Any:
-        q = self.coordinator.data["queues"][self.queue]
-        printer = q["printer"]
-        current = q["current_job"]
-        last = q["last_job"]
+        """Return the sensor value."""
+        queue_data = self.coordinator.data["queues"][self.queue]
+
+        printer = queue_data["printer"]
+        current = queue_data["current_job"]
+        last = queue_data["last_job"]
 
         if self.key == "printer_state":
-            return PRINTER_STATES.get(int(printer.get("printer-state", 0)), str(printer.get("printer-state", "unknown")))
+            state = int(printer.get("printer-state", 0))
+            return PRINTER_STATES.get(
+                state,
+                str(printer.get("printer-state", "unknown")),
+            )
+
         if self.key == "queued_jobs":
-            return int(printer.get("queued-job-count", len(q["active_jobs"])))
+            return int(
+                printer.get(
+                    "queued-job-count",
+                    len(queue_data["active_jobs"]),
+                )
+            )
+
         if self.key == "current_job":
             return _job_name(current)
+
         if self.key == "current_job_id":
             return current.get("job-id") if current else None
+
         if self.key == "current_job_state":
-            return JOB_STATES.get(int(current.get("job-state", 0)), "unknown") if current else None
+            if not current:
+                return None
+
+            state = int(current.get("job-state", 0))
+            return JOB_STATES.get(state, "unknown")
+
         if self.key == "pages_completed":
-            return current.get("job-media-sheets-completed", current.get("job-impressions-completed")) if current else None
+            if not current:
+                return None
+
+            return current.get(
+                "job-media-sheets-completed",
+                current.get("job-impressions-completed"),
+            )
+
         if self.key == "last_job":
             return _job_name(last)
+
         if self.key == "last_job_time":
             if not last:
                 return None
-            return last.get("date-time-at-completed") or last.get("date-time-at-processing") or last.get("date-time-at-creation")
+
+            value = (
+                last.get("date-time-at-completed")
+                or last.get("date-time-at-processing")
+                or last.get("date-time-at-creation")
+            )
+
+            return _parse_datetime(value)
+
         return None
 
     @property
     def extra_state_attributes(self) -> dict[str, Any] | None:
-        q = self.coordinator.data["queues"][self.queue]
-        job = q["current_job"] if self.key.startswith("current_job") or self.key == "pages_completed" else q["last_job"]
+        """Return additional job attributes."""
+        queue_data = self.coordinator.data["queues"][self.queue]
+
+        if self.key in (
+            "current_job",
+            "current_job_id",
+            "current_job_state",
+            "pages_completed",
+        ):
+            job = queue_data["current_job"]
+        else:
+            job = queue_data["last_job"]
+
         if self.key not in ("current_job", "last_job") or not job:
             return None
+
         keys = (
-            "job-id", "job-state", "job-state-reasons", "job-originating-user-name",
-            "document-name-supplied", "document-format", "job-k-octets", "copies",
-            "media", "PageSize", "print-color-mode", "ColorModel", "sides",
-            "job-impressions-completed", "job-media-sheets-completed",
-            "date-time-at-creation", "date-time-at-processing", "date-time-at-completed",
+            "job-id",
+            "job-state",
+            "job-state-reasons",
+            "job-originating-user-name",
+            "document-name-supplied",
+            "document-format",
+            "job-k-octets",
+            "copies",
+            "media",
+            "PageSize",
+            "print-color-mode",
+            "ColorModel",
+            "sides",
+            "job-impressions-completed",
+            "job-media-sheets-completed",
+            "date-time-at-creation",
+            "date-time-at-processing",
+            "date-time-at-completed",
         )
-        return {k: job[k] for k in keys if k in job}
+
+        return {
+            key: job[key]
+            for key in keys
+            if key in job
+        }
 
 
 async def async_setup_entry(
@@ -117,23 +225,29 @@ async def async_setup_entry(
 ) -> None:
     """Set up CUPS sensors."""
     coordinator: CupsCoordinator = entry.runtime_data
+
     entities: list[CupsSensor] = []
 
     definitions = [
-        ("printer_state", "Status", "mdi:printer"),
-        ("queued_jobs", "Queued jobs", "mdi:format-list-numbered"),
-        ("current_job", "Current job", "mdi:file-document-outline"),
-        ("current_job_id", "Current job ID", "mdi:identifier"),
-        ("current_job_state", "Current job status", "mdi:progress-clock"),
-        ("pages_completed", "Pages completed", "mdi:file-document-multiple-outline"),
-        ("last_job", "Last job", "mdi:history"),
-        ("last_job_time", "Last print time", "mdi:clock-outline"),
+        ("printer_state", "mdi:printer"),
+        ("queued_jobs", "mdi:format-list-numbered"),
+        ("current_job", "mdi:file-document-outline"),
+        ("current_job_id", "mdi:identifier"),
+        ("current_job_state", "mdi:progress-clock"),
+        ("pages_completed", "mdi:file-document-multiple-outline"),
+        ("last_job", "mdi:history"),
+        ("last_job_time", "mdi:clock-outline"),
     ]
 
     for queue in coordinator.data["queues"]:
         entities.extend(
-            CupsSensor(coordinator, queue, key, name, icon)
-            for key, name, icon in definitions
+            CupsSensor(
+                coordinator,
+                queue,
+                key,
+                icon,
+            )
+            for key, icon in definitions
         )
 
     async_add_entities(entities)
