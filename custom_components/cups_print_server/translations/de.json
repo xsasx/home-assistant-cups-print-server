@@ -1,29 +1,22 @@
 {
-  "title": "CUPS Print Server",
   "config": {
     "step": {
       "user": {
-        "title": "Mit CUPS Print Server verbinden",
-        "description": "Gib die Adresse deines CUPS-Servers ein. Die Druckerwarteschlangen werden automatisch erkannt.",
+        "title": "CUPS Print Server",
+        "description": "Verbinde Home Assistant mit deinem CUPS-Druckserver.",
         "data": {
           "host": "Host",
           "port": "Port",
           "use_ssl": "SSL verwenden"
-        },
-        "data_description": {
-          "host": "IP-Adresse oder Hostname des CUPS-Servers.",
-          "port": "IPP-Port. Der Standardport von CUPS ist 631.",
-          "use_ssl": "HTTPS/IPPS für die Verbindung verwenden."
         }
       }
     },
     "error": {
-      "cannot_connect": "Verbindung zum CUPS-Server konnte nicht hergestellt werden.",
-      "no_printers": "Verbindung zu CUPS hergestellt, aber es wurden keine Druckerwarteschlangen gefunden.",
+      "cannot_connect": "Verbindung zum CUPS-Server fehlgeschlagen.",
       "unknown": "Unerwarteter Fehler."
     },
     "abort": {
-      "already_configured": "Dieser CUPS-Server ist bereits eingerichtet."
+      "already_configured": "Dieser CUPS-Server ist bereits konfiguriert."
     }
   },
   "entity": {
@@ -33,7 +26,8 @@
         "state": {
           "idle": "Bereit",
           "processing": "Druckt",
-          "stopped": "Gestoppt"
+          "stopped": "Gestoppt",
+          "unknown": "Unbekannt"
         }
       },
       "queued_jobs": {
@@ -48,6 +42,7 @@
       "current_job_state": {
         "name": "Aktueller Jobstatus",
         "state": {
+          "idle": "Leerlauf",
           "pending": "Wartend",
           "pending_held": "Zurückgehalten",
           "processing": "Wird gedruckt",
