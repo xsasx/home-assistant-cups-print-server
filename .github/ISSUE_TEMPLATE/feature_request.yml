@@ -1,0 +1,32 @@
+name: Feature request
+description: Suggest an improvement or new feature
+title: "[Feature]: "
+labels:
+  - enhancement
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for suggesting an improvement for CUPS Print Server.
+
+  - type: textarea
+    id: feature
+    attributes:
+      label: Feature
+      description: What would you like the integration to do?
+    validations:
+      required: true
+
+  - type: textarea
+    id: use_case
+    attributes:
+      label: Use case
+      description: How would this feature be useful in Home Assistant?
+    validations:
+      required: true
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional information
+      description: Add examples, screenshots or CUPS/IPP details if useful.
