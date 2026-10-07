@@ -10,5 +10,5 @@
   "iot_class": "local_polling",
   "issue_tracker": "https://github.com/xsasx/home-assistant-cups-print-server/issues",
   "requirements": [],
-  "version": "0.1.0-beta.1"
+  "version": "0.1.0-beta.2"
 }
