@@ -29,7 +29,12 @@
   "entity": {
     "sensor": {
       "printer_state": {
-        "name": "Status"
+        "name": "Status",
+        "state": {
+          "idle": "Idle",
+          "processing": "Printing",
+          "stopped": "Stopped"
+        }
       },
       "queued_jobs": {
         "name": "Queued jobs"
@@ -41,7 +46,17 @@
         "name": "Current job ID"
       },
       "current_job_state": {
-        "name": "Current job status"
+        "name": "Current job status",
+        "state": {
+          "pending": "Pending",
+          "pending_held": "Held",
+          "processing": "Printing",
+          "processing_stopped": "Printing stopped",
+          "canceled": "Canceled",
+          "aborted": "Aborted",
+          "completed": "Completed",
+          "unknown": "Unknown"
+        }
       },
       "pages_completed": {
         "name": "Pages completed"
