@@ -1,3 +1,4 @@
+
 {
   "config": {
     "step": {
@@ -61,6 +62,11 @@
       },
       "last_job_time": {
         "name": "Last print time"
+      }
+    },
+    "binary_sensor": {
+      "printer_online": {
+        "name": "Printer reachable"
       }
     }
   }
