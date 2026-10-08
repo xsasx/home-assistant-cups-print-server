@@ -1,3 +1,4 @@
+
 """Constants for the CUPS Print Server integration."""
 
 DOMAIN = "cups_print_server"
@@ -9,7 +10,7 @@ DEFAULT_PORT = 631
 DEFAULT_USE_SSL = False
 DEFAULT_SCAN_INTERVAL = 10
 
-PLATFORMS = ["sensor"]
+PLATFORMS = ["sensor", "binary_sensor"]
 
 PRINTER_ATTRS = [
     "printer-name",
@@ -22,6 +23,7 @@ PRINTER_ATTRS = [
     "queued-job-count",
     "printer-is-accepting-jobs",
     "color-supported",
+    "device-uri",
 ]
 
 JOB_ATTRS = [
