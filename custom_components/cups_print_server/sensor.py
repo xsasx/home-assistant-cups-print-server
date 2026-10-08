@@ -45,7 +45,11 @@ JOB_STATES = {
     9: "completed",
 }
 
-JOB_STATE_OPTIONS = list(JOB_STATES.values()) + ["unknown"]
+JOB_STATE_OPTIONS = [
+    "idle",
+    *JOB_STATES.values(),
+    "unknown",
+]
 
 
 def _integer(value: Any) -> int | None:
@@ -72,9 +76,36 @@ def _job_name(job: dict[str, Any] | None) -> str | None:
 
 
 def _job_timestamp(job: dict[str, Any] | None) -> datetime | None:
-    """Return a job timestamp when available."""
+    """Return the best available job timestamp."""
     if not job:
         return None
+
+    for key in (
+        "date-time-at-completed",
+        "date-time-at-processing",
+        "date-time-at-creation",
+    ):
+        value = job.get(key)
+
+        if isinstance(value, datetime):
+            return (
+                value.replace(tzinfo=timezone.utc)
+                if value.tzinfo is None
+                else value
+            )
+
+        if isinstance(value, str):
+            try:
+                parsed = datetime.fromisoformat(
+                    value.replace("Z", "+00:00")
+                )
+                return (
+                    parsed.replace(tzinfo=timezone.utc)
+                    if parsed.tzinfo is None
+                    else parsed
+                )
+            except ValueError:
+                continue
 
     for key in (
         "time-at-completed",
@@ -82,9 +113,13 @@ def _job_timestamp(job: dict[str, Any] | None) -> datetime | None:
         "time-at-creation",
     ):
         value = _integer(job.get(key))
+
         if value is not None and value > 0:
             try:
-                return datetime.fromtimestamp(value, tz=timezone.utc)
+                return datetime.fromtimestamp(
+                    value,
+                    tz=timezone.utc,
+                )
             except (ValueError, OverflowError, OSError):
                 continue
 
@@ -176,23 +211,23 @@ class CupsSensor(CoordinatorEntity[CupsCoordinator], SensorEntity):
             return PRINTER_STATES.get(state, "unknown")
 
         if self.key == "queued_jobs":
-            return _integer(
-                printer.get("queued-job-count")
-            ) or 0
+            return (
+                _integer(printer.get("queued-job-count"))
+                or 0
+            )
 
         if self.key == "current_job":
-            return _job_name(current_job)
+            return _job_name(current_job) or "Kein Druckauftrag"
 
         if self.key == "current_job_id":
-            return (
-                current_job.get("job-id")
-                if current_job
-                else None
-            )
+            if not current_job:
+                return 0
+
+            return _integer(current_job.get("job-id")) or 0
 
         if self.key == "current_job_state":
             if not current_job:
-                return None
+                return "idle"
 
             state = _integer(current_job.get("job-state"))
             return JOB_STATES.get(state, "unknown")
