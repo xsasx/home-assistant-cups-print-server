@@ -1,0 +1,73 @@
+
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "CUPS Print Server",
+        "description": "Connect Home Assistant to your CUPS print server.",
+        "data": {
+          "host": "Host",
+          "port": "Port",
+          "use_ssl": "Use SSL"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Failed to connect to the CUPS server.",
+      "unknown": "Unexpected error."
+    },
+    "abort": {
+      "already_configured": "This CUPS server is already configured."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "printer_state": {
+        "name": "Status",
+        "state": {
+          "idle": "Ready",
+          "processing": "Printing",
+          "stopped": "Stopped",
+          "unknown": "Unknown"
+        }
+      },
+      "queued_jobs": {
+        "name": "Queued jobs"
+      },
+      "current_job": {
+        "name": "Current print job"
+      },
+      "current_job_id": {
+        "name": "Current job ID"
+      },
+      "current_job_state": {
+        "name": "Current job status",
+        "state": {
+          "idle": "Idle",
+          "pending": "Pending",
+          "pending_held": "Held",
+          "processing": "Printing",
+          "processing_stopped": "Printing stopped",
+          "canceled": "Canceled",
+          "aborted": "Failed",
+          "completed": "Completed",
+          "unknown": "Unknown"
+        }
+      },
+      "pages_completed": {
+        "name": "Printed pages"
+      },
+      "last_job": {
+        "name": "Last print job"
+      },
+      "last_job_time": {
+        "name": "Last print time"
+      }
+    },
+    "binary_sensor": {
+      "printer_online": {
+        "name": "Printer reachable"
+      }
+    }
+  }
+}
