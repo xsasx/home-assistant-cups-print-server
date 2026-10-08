@@ -1,11 +1,15 @@
-"""Sensor platform for CUPS Print Server."""
+
+"""Binary sensors for CUPS Print Server."""
 
 from __future__ import annotations
 
-from datetime import datetime
 from typing import Any
+from urllib.parse import quote
 
-from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
+from homeassistant.components.binary_sensor import (
+    BinarySensorEntity,
+    BinarySensorEntityDescription,
+)
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers.device_registry import DeviceInfo
@@ -15,267 +19,15 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 from .const import DOMAIN
 from .coordinator import CupsCoordinator
 
-PRINTER_STATES = {
-    3: "idle",
-    4: "processing",
-    5: "stopped",
-}
 
-PRINTER_STATE_OPTIONS = [
-    "idle",
-    "processing",
-    "stopped",
-    "unknown",
-]
-
-JOB_STATES = {
-    3: "pending",
-    4: "pending_held",
-    5: "processing",
-    6: "processing_stopped",
-    7: "canceled",
-    8: "aborted",
-    9: "completed",
-}
-
-JOB_STATE_OPTIONS = [
-    "idle",
-    "pending",
-    "pending_held",
-    "processing",
-    "processing_stopped",
-    "canceled",
-    "aborted",
-    "completed",
-    "unknown",
-]
-
-
-def _valid_job_name(value: Any) -> str | None:
-    """Return a usable job name or None."""
-    if not isinstance(value, str):
-        return None
-
-    value = value.strip()
-
-    if not value:
-        return None
-
-    if value.lower() in {
-        "unknown",
-        "unbekannt",
-        "none",
-        "null",
-        "n/a",
-    }:
-        return None
-
-    return value
-
-
-def _job_name(job: dict[str, Any] | None) -> str | None:
-    """Return the best available display name for a print job."""
-    if not job:
-        return None
-
-    job_name = _valid_job_name(job.get("job-name"))
-    if job_name:
-        return job_name
-
-    document_name = _valid_job_name(
-        job.get("document-name-supplied")
-    )
-    if document_name:
-        return document_name
-
-    job_id = job.get("job-id")
-    if job_id is not None:
-        return f"Job {job_id}"
-
-    return None
-
-
-def _parse_datetime(value: Any) -> datetime | None:
-    """Convert an IPP date/time value into a Home Assistant timestamp."""
-    if not isinstance(value, str) or not value:
-        return None
-
-    try:
-        return datetime.fromisoformat(value.replace("Z", "+00:00"))
-    except ValueError:
-        return None
-
-
-class CupsSensor(CoordinatorEntity[CupsCoordinator], SensorEntity):
-    """Representation of a CUPS sensor."""
-
-    _attr_has_entity_name = True
-
-    def __init__(
-        self,
-        coordinator: CupsCoordinator,
-        queue: str,
-        key: str,
-        icon: str,
-    ) -> None:
-        """Initialize the sensor."""
-        super().__init__(coordinator)
-
-        self.queue = queue
-        self.key = key
-
-        self._attr_translation_key = key
-        self._attr_icon = icon
-        self._attr_unique_id = (
-            f"{coordinator.entry.entry_id}_{queue}_{key}"
-        )
-
-        if key == "last_job_time":
-            self._attr_device_class = SensorDeviceClass.TIMESTAMP
-
-        elif key == "printer_state":
-            self._attr_device_class = SensorDeviceClass.ENUM
-            self._attr_options = PRINTER_STATE_OPTIONS
-
-        elif key == "current_job_state":
-            self._attr_device_class = SensorDeviceClass.ENUM
-            self._attr_options = JOB_STATE_OPTIONS
-
-    @property
-    def device_info(self) -> DeviceInfo:
-        """Return device information."""
-        data = self.coordinator.data["queues"][self.queue]["printer"]
-
-        return DeviceInfo(
-            identifiers={
-                (
-                    DOMAIN,
-                    f"{self.coordinator.entry.entry_id}_{self.queue}",
-                )
-            },
-            name=data.get("printer-info") or self.queue,
-            manufacturer="CUPS",
-            model=data.get("printer-make-and-model") or "CUPS Printer",
-            configuration_url=(
-                f"{'https' if self.coordinator.entry.data.get('use_ssl') else 'http'}://"
-                f"{self.coordinator.entry.data['host']}:"
-                f"{self.coordinator.entry.data.get('port', 631)}"
-                f"/printers/{self.queue}"
-            ),
-        )
-
-    @property
-    def native_value(self) -> Any:
-        """Return the sensor value."""
-        queue_data = self.coordinator.data["queues"][self.queue]
-
-        printer = queue_data["printer"]
-        current = queue_data["current_job"]
-        last = queue_data["last_job"]
-
-        if self.key == "printer_state":
-            try:
-                state = int(printer.get("printer-state", 0))
-            except (TypeError, ValueError):
-                return "unknown"
-
-            return PRINTER_STATES.get(state, "unknown")
-
-        if self.key == "queued_jobs":
-            return int(
-                printer.get(
-                    "queued-job-count",
-                    len(queue_data["active_jobs"]),
-                )
-            )
-
-        if self.key == "current_job":
-            return _job_name(current)
-
-        if self.key == "current_job_id":
-            return current.get("job-id") if current else None
-
-        if self.key == "current_job_state":
-            if not current:
-                return "idle"
-
-            try:
-                state = int(current.get("job-state", 0))
-            except (TypeError, ValueError):
-                return "unknown"
-
-            return JOB_STATES.get(state, "unknown")
-
-        if self.key == "pages_completed":
-            if not current:
-                return None
-
-            return current.get(
-                "job-media-sheets-completed",
-                current.get("job-impressions-completed"),
-            )
-
-        if self.key == "last_job":
-            return _job_name(last)
-
-        if self.key == "last_job_time":
-            if not last:
-                return None
-
-            value = (
-                last.get("date-time-at-completed")
-                or last.get("date-time-at-processing")
-                or last.get("date-time-at-creation")
-            )
-
-            return _parse_datetime(value)
-
-        return None
-
-    @property
-    def extra_state_attributes(self) -> dict[str, Any] | None:
-        """Return additional job attributes."""
-        queue_data = self.coordinator.data["queues"][self.queue]
-
-        if self.key in (
-            "current_job",
-            "current_job_id",
-            "current_job_state",
-            "pages_completed",
-        ):
-            job = queue_data["current_job"]
-        else:
-            job = queue_data["last_job"]
-
-        if self.key not in ("current_job", "last_job") or not job:
-            return None
-
-        keys = (
-            "job-id",
-            "job-state",
-            "job-state-reasons",
-            "job-originating-user-name",
-            "document-name-supplied",
-            "document-format",
-            "job-k-octets",
-            "copies",
-            "media",
-            "PageSize",
-            "print-color-mode",
-            "ColorModel",
-            "sides",
-            "job-impressions-completed",
-            "job-media-sheets-completed",
-            "date-time-at-creation",
-            "date-time-at-processing",
-            "date-time-at-completed",
-        )
-
-        return {
-            key: job[key]
-            for key in keys
-            if key in job
-        }
+BINARY_SENSOR_DESCRIPTIONS = (
+    BinarySensorEntityDescription(
+        key="printer_online",
+        translation_key="printer_online",
+        name="Printer reachable",
+        icon="mdi:printer-check",
+    ),
+)
 
 
 async def async_setup_entry(
@@ -283,31 +35,98 @@ async def async_setup_entry(
     entry: ConfigEntry,
     async_add_entities: AddEntitiesCallback,
 ) -> None:
-    """Set up CUPS sensors."""
+    """Set up CUPS binary sensors."""
     coordinator: CupsCoordinator = entry.runtime_data
+    queues = coordinator.data.get("queues", {})
 
-    entities: list[CupsSensor] = []
+    async_add_entities(
+        CupsPrinterBinarySensor(
+            coordinator,
+            entry,
+            queue,
+            description,
+        )
+        for queue in queues
+        for description in BINARY_SENSOR_DESCRIPTIONS
+    )
 
-    definitions = [
-        ("printer_state", "mdi:printer"),
-        ("queued_jobs", "mdi:format-list-numbered"),
-        ("current_job", "mdi:file-document-outline"),
-        ("current_job_id", "mdi:identifier"),
-        ("current_job_state", "mdi:progress-clock"),
-        ("pages_completed", "mdi:file-document-multiple-outline"),
-        ("last_job", "mdi:history"),
-        ("last_job_time", "mdi:clock-outline"),
-    ]
 
-    for queue in coordinator.data["queues"]:
-        entities.extend(
-            CupsSensor(
-                coordinator,
-                queue,
-                key,
-                icon,
-            )
-            for key, icon in definitions
+class CupsPrinterBinarySensor(
+    CoordinatorEntity[CupsCoordinator],
+    BinarySensorEntity,
+):
+    """Represent physical printer connectivity."""
+
+    _attr_has_entity_name = True
+
+    def __init__(
+        self,
+        coordinator: CupsCoordinator,
+        entry: ConfigEntry,
+        queue: str,
+        description: BinarySensorEntityDescription,
+    ) -> None:
+        """Initialize the binary sensor."""
+        super().__init__(coordinator)
+
+        self.queue = queue
+        self.entity_description = description
+
+        self._attr_unique_id = (
+            f"{entry.entry_id}_{queue}_{description.key}"
         )
 
-    async_add_entities(entities)
+    @property
+    def _queue_data(self) -> dict[str, Any]:
+        """Return current queue data."""
+        return self.coordinator.data.get(
+            "queues", {}
+        ).get(self.queue, {})
+
+    @property
+    def device_info(self) -> DeviceInfo:
+        """Associate the sensor with the existing CUPS printer device."""
+        entry = self.coordinator.entry
+        printer = self._queue_data.get("printer", {})
+
+        scheme = (
+            "https"
+            if entry.data.get("use_ssl")
+            else "http"
+        )
+
+        host = entry.data["host"]
+        port = entry.data.get("port", 631)
+        queue_url = quote(self.queue, safe="")
+
+        return DeviceInfo(
+            identifiers={
+                (
+                    DOMAIN,
+                    f"{entry.entry_id}_{self.queue}",
+                )
+            },
+            name=printer.get("printer-info") or self.queue,
+            manufacturer="CUPS",
+            model=(
+                printer.get("printer-make-and-model")
+                or "CUPS Printer"
+            ),
+            configuration_url=(
+                f"{scheme}://{host}:{port}"
+                f"/printers/{queue_url}"
+            ),
+        )
+
+    @property
+    def available(self) -> bool:
+        """Return whether connectivity can be determined."""
+        return (
+            super().available
+            and self._queue_data.get("printer_online") is not None
+        )
+
+    @property
+    def is_on(self) -> bool | None:
+        """Return whether the physical printer is reachable."""
+        return self._queue_data.get("printer_online")
