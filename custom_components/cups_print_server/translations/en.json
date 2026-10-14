@@ -1,4 +1,3 @@
-
 {
   "config": {
     "step": {
@@ -67,6 +66,19 @@
     "binary_sensor": {
       "printer_online": {
         "name": "Printer reachable"
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "CUPS Print Server",
+        "data": {
+          "power_switch": "Printer power switch",
+          "auto_power_on": "Automatically turn on printer when a print job arrives",
+          "auto_power_off": "Automatically turn off printer when idle",
+          "power_off_delay": "Power-off delay (minutes)"
+        }
       }
     }
   }

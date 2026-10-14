@@ -234,6 +234,7 @@ class CupsCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                         else (jobs[0] if jobs else None)
                     ),
                     "printer_online": printer_online,
+                    "data_fresh": True,
                 }
 
                 successful_queues += 1
@@ -251,6 +252,7 @@ class CupsCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                     # A failed queue update must not present an
                     # old connectivity result as a fresh reading.
                     previous["printer_online"] = None
+                    previous["data_fresh"] = False
 
                     data["queues"][queue] = previous
 

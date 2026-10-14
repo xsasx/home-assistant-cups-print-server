@@ -1,4 +1,3 @@
-
 """Constants for the CUPS Print Server integration."""
 
 DOMAIN = "cups_print_server"
@@ -6,11 +5,20 @@ DOMAIN = "cups_print_server"
 CONF_PORT = "port"
 CONF_USE_SSL = "use_ssl"
 
+CONF_POWER_SWITCH = "power_switch"
+CONF_AUTO_POWER_ON = "auto_power_on"
+CONF_AUTO_POWER_OFF = "auto_power_off"
+CONF_POWER_OFF_DELAY = "power_off_delay"
+
 DEFAULT_PORT = 631
 DEFAULT_USE_SSL = False
 DEFAULT_SCAN_INTERVAL = 10
 
-PLATFORMS = ["sensor", "binary_sensor"]
+DEFAULT_AUTO_POWER_ON = False
+DEFAULT_AUTO_POWER_OFF = False
+DEFAULT_POWER_OFF_DELAY = 15
+
+PLATFORMS = ["sensor", "binary_sensor", "switch", "number"]
 
 PRINTER_ATTRS = [
     "printer-name",

@@ -1,4 +1,3 @@
-
 {
   "config": {
     "step": {
@@ -67,6 +66,19 @@
     "binary_sensor": {
       "printer_online": {
         "name": "Drucker erreichbar"
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "CUPS Print Server",
+        "data": {
+          "power_switch": "Drucker-Steckdose",
+          "auto_power_on": "Drucker bei neuem Druckauftrag automatisch einschalten",
+          "auto_power_off": "Drucker bei Leerlauf automatisch ausschalten",
+          "power_off_delay": "Ausschaltverzögerung (Minuten)"
+        }
       }
     }
   }

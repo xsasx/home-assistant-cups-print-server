@@ -270,6 +270,8 @@ class CupsSensor(CoordinatorEntity[CupsCoordinator], SensorEntity):
         }
 
 
+from .power_sensor import CupsPowerCountdown
+
 async def async_setup_entry(
     hass: HomeAssistant,
     entry: ConfigEntry,
@@ -285,3 +287,9 @@ async def async_setup_entry(
     ]
 
     async_add_entities(entities)
+
+
+    async_add_entities(
+        CupsPowerCountdown(coordinator, entry, queue)
+        for queue in coordinator.data.get("queues", {})
+    )
