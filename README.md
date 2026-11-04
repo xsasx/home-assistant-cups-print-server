@@ -9,7 +9,7 @@ A custom Home Assistant integration for monitoring **CUPS print servers, printer
 
 Everything runs locally. No cloud service, SSH access or shell commands from Home Assistant are required.
 
-> **Status:** `v0.1.0-beta.7` – public beta with smart plug power management.
+> **Status:** `0.1.0` stable release prepared; publication on GitHub Releases is pending.
 
 ---
 
@@ -39,7 +39,7 @@ That idea became **CUPS Print Server for Home Assistant**.
 
 The integration connects directly to CUPS using IPP and exposes printer, queue and print-job information as Home Assistant entities.
 
-With `v0.1.0-beta.7`, the integration also supports an optional Home Assistant smart plug to automatically power a printer on when a print job arrives and switch it off again after a configurable idle period.
+Starting with `v0.1.0-beta.7`, the integration also supports an optional Home Assistant smart plug to automatically power a printer on when a print job arrives and switch it off again after a configurable idle period.
 
 ---
 
@@ -66,7 +66,7 @@ With `v0.1.0-beta.7`, the integration also supports an optional Home Assistant s
 - Diagnostics support
 - Home Assistant device registry integration
 
-### 🔌 Smart plug power management — NEW in beta.7
+### 🔌 Smart plug power management
 
 - Select an existing Home Assistant smart plug
 - Manually turn printer power on and off
@@ -269,11 +269,11 @@ The default IPP port is:
 
 Printer queues are discovered automatically.
 
-### Updating from an earlier beta
+### Updating from an earlier version
 
 1. Open HACS.
 2. Select CUPS Print Server.
-3. Install the latest beta release.
+3. Install the latest published release.
 4. Restart Home Assistant.
 5. Open the integration configuration to select your smart plug and configure the power-management options.
 
@@ -364,23 +364,15 @@ Additional translations are welcome.
 
 ---
 
-## 🚧 Beta notice
-
-**Current beta: `v0.1.0-beta.7`**
+## 🧪 Testing and compatibility
 
 The integration supports printer and job monitoring as well as optional smart plug power management.
 
-The following power-management behavior has been tested in a local Home Assistant setup:
+Automated regression tests cover IPP parsing and smart plug safety decisions. HACS validation and hassfest are also run through GitHub Actions.
 
-- Manual smart plug control
-- Automatic power-on when a CUPS job is detected
-- Configurable idle shutdown
-- Countdown sensor
-- Automatic power-off after the configured delay
+The Dell C2660dn test setup has been used to verify automatic power-on, successful print-job completion, and idle shutdown.
 
-Successful completion of a print job after automatic power-on has not yet been fully verified in the test environment because the physical printer was temporarily unreachable.
-
-There may also be CUPS versions, printer drivers, print clients and smart plug configurations that behave differently.
+Other CUPS versions, printer drivers, print clients, and smart plug configurations may behave differently. Please report compatibility issues through the issue tracker.
 
 If you find a problem, please open a GitHub issue and include:
 
@@ -426,7 +418,7 @@ Please use the [GitHub issue tracker](https://github.com/xsasx/home-assistant-cu
 
 Bug reports, feature requests, translations and pull requests are welcome.
 
-If you're testing the integration with another CUPS setup, printer model or smart plug, feedback is especially useful during the beta phase.
+If you're testing the integration with another CUPS setup, printer model or smart plug, feedback is especially useful for expanding compatibility.
 
 ---
 
