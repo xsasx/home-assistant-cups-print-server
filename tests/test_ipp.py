@@ -24,7 +24,7 @@ spec.loader.exec_module(ipp)
 def response(*groups: bytes, status: int = 0) -> bytes:
     """Build a minimal IPP response with an end marker."""
     return (
-        b"\\x02\\x00"
+        b"\x02\x00"
         + struct.pack(">H", status)
         + struct.pack(">I", 1)
         + b"".join(groups)
@@ -55,7 +55,7 @@ class TestIppCodec(unittest.TestCase):
         printer_group = (
             bytes([ipp.TAG_PRINTER])
             + ipp._attr(ipp.TAG_INTEGER, "queued-job-count", struct.pack(">i", 3))
-            + ipp._attr(ipp.TAG_BOOLEAN, "printer-is-accepting-jobs", b"\\x01")
+            + ipp._attr(ipp.TAG_BOOLEAN, "printer-is-accepting-jobs", b"\x01")
             + ipp._attr(ipp.TAG_NAME, "printer-name", b"Office")
         )
         status, groups = ipp.parse_response(response(printer_group))
@@ -89,11 +89,11 @@ class TestIppCodec(unittest.TestCase):
 
     def test_short_response_is_rejected(self):
         with self.assertRaises(ipp.CupsProtocolError):
-            ipp.parse_response(b"\\x02\\x00")
+            ipp.parse_response(b"\x02\x00")
 
     def test_missing_end_marker_is_rejected(self):
         with self.assertRaises(ipp.CupsProtocolError):
-            ipp.parse_response(b"\\x02\\x00\\x00\\x00\\x00\\x00\\x00\\x01" + bytes([ipp.TAG_JOB]))
+            ipp.parse_response(b"\x02\x00\x00\x00\x00\x00\x00\x01" + bytes([ipp.TAG_JOB]))
 
     def test_truncated_attribute_is_rejected(self):
         broken = (
@@ -119,7 +119,7 @@ class TestIppCodec(unittest.TestCase):
 
     def test_unknown_tag_value_is_hex_encoded(self):
         group = bytes([ipp.TAG_JOB]) + ipp._attr(
-            0x35, "unknown", b"\\x01\\xff"
+            0x35, "unknown", b"\x01\xff"
         )
         _, groups = ipp.parse_response(response(group))
         self.assertEqual(groups[0].attributes["unknown"], "01ff")
