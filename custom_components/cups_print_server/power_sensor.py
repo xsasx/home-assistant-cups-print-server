@@ -13,7 +13,7 @@ class CupsPowerCountdown(CoordinatorEntity, SensorEntity):
     """Show remaining time until automatic printer shutdown."""
 
     _attr_has_entity_name = True
-    _attr_name = "Verbleibende Ausschaltzeit"
+    _attr_translation_key = "power_countdown"
     _attr_native_unit_of_measurement = "s"
     _attr_icon = "mdi:timer-outline"
 

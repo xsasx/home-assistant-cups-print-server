@@ -25,7 +25,7 @@ class CupsPowerOffDelay(CoordinatorEntity, NumberEntity):
     """Adjust the automatic power-off delay."""
 
     _attr_has_entity_name = True
-    _attr_name = "Ausschaltverzögerung"
+    _attr_translation_key = "power_off_delay"
     _attr_native_min_value = 1
     _attr_native_max_value = 1440
     _attr_native_step = 1

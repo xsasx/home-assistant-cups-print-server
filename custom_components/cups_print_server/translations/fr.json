@@ -1,0 +1,118 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "CUPS Print Server",
+        "description": "Connectez Home Assistant à votre serveur d'impression CUPS.",
+        "data": {
+          "host": "Hôte",
+          "port": "Port",
+          "use_ssl": "Utiliser SSL"
+        }
+      },
+      "reconfigure": {
+        "title": "CUPS Print Server",
+        "description": "Mettez à jour la connexion à votre serveur d'impression CUPS.",
+        "data": {
+          "host": "Hôte",
+          "port": "Port",
+          "use_ssl": "Utiliser SSL"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Impossible de se connecter au serveur CUPS.",
+      "no_printers": "Aucune file d'impression trouvée sur ce serveur CUPS.",
+      "unknown": "Erreur inattendue."
+    },
+    "abort": {
+      "already_configured": "Ce serveur CUPS est déjà configuré.",
+      "reconfigure_successful": "La reconfiguration a réussi."
+    }
+  },
+  "entity": {
+    "sensor": {
+      "printer_state": {
+        "name": "État",
+        "state": {
+          "idle": "Prête",
+          "processing": "Impression en cours",
+          "stopped": "Arrêtée",
+          "unknown": "Inconnu"
+        }
+      },
+      "queued_jobs": {
+        "name": "Travaux en attente"
+      },
+      "current_job": {
+        "name": "Impression en cours",
+        "state": {
+          "no_job": "Aucune impression"
+        }
+      },
+      "current_job_id": {
+        "name": "ID du travail en cours"
+      },
+      "current_job_state": {
+        "name": "État du travail en cours",
+        "state": {
+          "idle": "Inactif",
+          "pending": "En attente",
+          "pending_held": "Suspendu",
+          "processing": "Impression en cours",
+          "processing_stopped": "Impression interrompue",
+          "canceled": "Annulé",
+          "aborted": "Échoué",
+          "completed": "Terminé",
+          "unknown": "Inconnu"
+        }
+      },
+      "pages_completed": {
+        "name": "Pages imprimées"
+      },
+      "last_job": {
+        "name": "Dernière impression"
+      },
+      "last_job_time": {
+        "name": "Heure de la dernière impression"
+      },
+      "power_countdown": {
+        "name": "Temps avant extinction"
+      }
+    },
+    "binary_sensor": {
+      "printer_online": {
+        "name": "Imprimante joignable"
+      }
+    },
+    "switch": {
+      "power_control": {
+        "name": "Alimentation de l'imprimante"
+      },
+      "auto_power_on": {
+        "name": "Allumage automatique"
+      },
+      "auto_power_off": {
+        "name": "Extinction automatique"
+      }
+    },
+    "number": {
+      "power_off_delay": {
+        "name": "Délai d'extinction"
+      }
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "CUPS Print Server",
+        "data": {
+          "power_switch": "Prise de l'imprimante",
+          "auto_power_on": "Allumer automatiquement l'imprimante à l'arrivée d'une impression",
+          "auto_power_off": "Éteindre automatiquement l'imprimante lorsqu'elle est inactive",
+          "power_off_delay": "Délai d'extinction (minutes)"
+        }
+      }
+    }
+  }
+}

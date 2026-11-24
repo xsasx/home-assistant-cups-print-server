@@ -9,14 +9,25 @@
           "port": "Port",
           "use_ssl": "Use SSL"
         }
+      },
+      "reconfigure": {
+        "title": "CUPS Print Server",
+        "description": "Update the connection to your CUPS print server.",
+        "data": {
+          "host": "Host",
+          "port": "Port",
+          "use_ssl": "Use SSL"
+        }
       }
     },
     "error": {
       "cannot_connect": "Failed to connect to the CUPS server.",
+      "no_printers": "No printer queue was found on this CUPS server.",
       "unknown": "Unexpected error."
     },
     "abort": {
-      "already_configured": "This CUPS server is already configured."
+      "already_configured": "This CUPS server is already configured.",
+      "reconfigure_successful": "Reconfiguration was successful."
     }
   },
   "entity": {
@@ -34,7 +45,10 @@
         "name": "Queued jobs"
       },
       "current_job": {
-        "name": "Current print job"
+        "name": "Current print job",
+        "state": {
+          "no_job": "No print job"
+        }
       },
       "current_job_id": {
         "name": "Current job ID"
@@ -61,11 +75,30 @@
       },
       "last_job_time": {
         "name": "Last print time"
+      },
+      "power_countdown": {
+        "name": "Time until power-off"
       }
     },
     "binary_sensor": {
       "printer_online": {
         "name": "Printer reachable"
+      }
+    },
+    "switch": {
+      "power_control": {
+        "name": "Printer power"
+      },
+      "auto_power_on": {
+        "name": "Automatic power-on"
+      },
+      "auto_power_off": {
+        "name": "Automatic power-off"
+      }
+    },
+    "number": {
+      "power_off_delay": {
+        "name": "Power-off delay"
       }
     }
   },

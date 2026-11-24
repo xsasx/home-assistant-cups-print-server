@@ -217,7 +217,7 @@ class CupsSensor(CoordinatorEntity[CupsCoordinator], SensorEntity):
             )
 
         if self.key == "current_job":
-            return _job_name(current_job) or "Kein Druckauftrag"
+            return _job_name(current_job) or "no_job"
 
         if self.key == "current_job_id":
             if not current_job:
