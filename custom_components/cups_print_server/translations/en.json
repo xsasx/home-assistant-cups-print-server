@@ -66,6 +66,9 @@
     "binary_sensor": {
       "printer_online": {
         "name": "Printer reachable"
+      },
+      "printer_problem": {
+        "name": "Problem"
       }
     }
   },

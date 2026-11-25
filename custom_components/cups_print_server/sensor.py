@@ -16,6 +16,7 @@ from homeassistant.helpers.update_coordinator import CoordinatorEntity
 
 from .const import DOMAIN
 from .coordinator import CupsCoordinator
+from .printer_alerts import state_reasons
 
 
 SENSOR_DEFINITIONS = (
@@ -258,16 +259,26 @@ class CupsSensor(CoordinatorEntity[CupsCoordinator], SensorEntity):
     def extra_state_attributes(self) -> dict[str, Any]:
         """Return additional state attributes."""
         queue_data = self._queue_data
+        printer = queue_data["printer"]
 
-        return {
+        attributes = {
             "queue": self.queue,
-            "printer_state": queue_data["printer"].get(
-                "printer-state"
-            ),
+            "printer_state": printer.get("printer-state"),
             "active_jobs": len(
                 queue_data.get("active_jobs", [])
             ),
         }
+
+        if self.key == "printer_state":
+            attributes["state_reasons"] = state_reasons(printer)
+            attributes["state_message"] = (
+                printer.get("printer-state-message") or None
+            )
+            attributes["accepting_jobs"] = printer.get(
+                "printer-is-accepting-jobs"
+            )
+
+        return attributes
 
 
 from .power_sensor import CupsPowerCountdown
