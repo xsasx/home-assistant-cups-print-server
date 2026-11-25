@@ -21,6 +21,9 @@
   },
   "entity": {
     "sensor": {
+      "supply_level": {
+        "name": "Supply {index}"
+      },
       "printer_state": {
         "name": "Status",
         "state": {

@@ -7,9 +7,14 @@ from datetime import datetime, timezone
 from typing import Any
 from urllib.parse import quote
 
-from homeassistant.components.sensor import SensorDeviceClass, SensorEntity
+from homeassistant.components.sensor import (
+    SensorDeviceClass,
+    SensorEntity,
+    SensorStateClass,
+)
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.core import HomeAssistant
+from homeassistant.const import PERCENTAGE
+from homeassistant.core import HomeAssistant, callback
 from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import CoordinatorEntity
@@ -270,6 +275,94 @@ class CupsSensor(CoordinatorEntity[CupsCoordinator], SensorEntity):
         }
 
 
+class CupsSupplySensor(CoordinatorEntity[CupsCoordinator], SensorEntity):
+    """Represent the level of a printer supply reported by CUPS."""
+
+    _attr_has_entity_name = True
+    _attr_native_unit_of_measurement = PERCENTAGE
+    _attr_state_class = SensorStateClass.MEASUREMENT
+
+    def __init__(
+        self,
+        coordinator: CupsCoordinator,
+        queue: str,
+        supply: dict[str, Any],
+    ) -> None:
+        """Initialize the supply sensor."""
+        super().__init__(coordinator)
+
+        self.queue = queue
+        self.index: int = supply["index"]
+
+        self._attr_unique_id = (
+            f"{coordinator.entry.entry_id}_{queue}_supply_{self.index}"
+        )
+        self._attr_device_info = DeviceInfo(
+            identifiers={
+                (DOMAIN, f"{coordinator.entry.entry_id}_{queue}")
+            }
+        )
+
+        if supply["name"]:
+            # CUPS supplies the name (e.g. "Black Toner"); it cannot be
+            # translated.
+            self._attr_name = supply["name"]
+        else:
+            self._attr_translation_key = "supply_level"
+            self._attr_translation_placeholders = {
+                "index": str(self.index + 1)
+            }
+
+        self._attr_icon = (
+            "mdi:water"
+            if "ink" in (supply["type"] or "")
+            else "mdi:gauge"
+        )
+
+    @property
+    def _supply(self) -> dict[str, Any] | None:
+        queue_data = self.coordinator.data.get("queues", {}).get(
+            self.queue
+        )
+
+        if not queue_data:
+            return None
+
+        supplies = queue_data.get("supplies", [])
+        return (
+            supplies[self.index]
+            if self.index < len(supplies)
+            else None
+        )
+
+    @property
+    def available(self) -> bool:
+        """Return whether CUPS still reports this supply."""
+        return super().available and self._supply is not None
+
+    @property
+    def native_value(self) -> int | None:
+        """Return the remaining level in percent."""
+        supply = self._supply
+        return supply["level"] if supply else None
+
+    @property
+    def extra_state_attributes(self) -> dict[str, Any]:
+        """Return supply details."""
+        supply = self._supply
+
+        if supply is None:
+            return {}
+
+        return {
+            "type": supply["type"],
+            "color": supply["color"],
+            "level_state": supply["level_state"],
+            "low_level": supply["low_level"],
+            "high_level": supply["high_level"],
+        }
+
+
 from .power_sensor import CupsPowerCountdown
 
 async def async_setup_entry(
@@ -287,6 +380,36 @@ async def async_setup_entry(
     ]
 
     async_add_entities(entities)
+
+    # CUPS only publishes supply levels once the driver has reported them,
+    # often after the first job, so supply sensors are added on the fly.
+    known_supplies: set[tuple[str, int]] = set()
+
+    @callback
+    def _async_add_new_supplies() -> None:
+        new_entities = []
+
+        for queue, queue_data in coordinator.data.get(
+            "queues", {}
+        ).items():
+            for supply in queue_data.get("supplies", []):
+                key = (queue, supply["index"])
+
+                if key in known_supplies:
+                    continue
+
+                known_supplies.add(key)
+                new_entities.append(
+                    CupsSupplySensor(coordinator, queue, supply)
+                )
+
+        if new_entities:
+            async_add_entities(new_entities)
+
+    _async_add_new_supplies()
+    entry.async_on_unload(
+        coordinator.async_add_listener(_async_add_new_supplies)
+    )
 
 
     async_add_entities(

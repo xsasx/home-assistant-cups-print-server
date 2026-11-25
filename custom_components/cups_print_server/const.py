@@ -32,6 +32,12 @@ PRINTER_ATTRS = [
     "printer-is-accepting-jobs",
     "color-supported",
     "device-uri",
+    "marker-names",
+    "marker-levels",
+    "marker-types",
+    "marker-colors",
+    "marker-low-levels",
+    "marker-high-levels",
 ]
 
 JOB_ATTRS = [

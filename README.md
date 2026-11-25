@@ -59,6 +59,7 @@ Starting with `v0.1.0-beta.7`, the integration also supports an optional Home As
 - Number of completed/printed pages
 - Last print job
 - Last print time
+- Supply levels (toner, ink, drum…) when reported by the printer driver
 - Detailed print-job information as entity attributes
 - Native Home Assistant timestamp handling
 - Translated printer and job states
@@ -128,6 +129,16 @@ This can include:
 - Completion time
 
 Not every client supplies every attribute. For example, some AirPrint jobs may not provide a useful document name or username.
+
+### Supply levels
+
+| Sensor | Description |
+|---|---|
+| *Supply name* (e.g. *Black Toner*) | Remaining level in percent, one sensor per supply reported by CUPS |
+
+Supply sensors are named after the supply reported by CUPS and are added automatically as soon as CUPS reports them, which is often after the first print job. Their attributes include the supply `type`, `color`, `low_level`, `high_level` and `level_state`. The sensor is *unknown* when CUPS only knows that some supply remains, without a percentage.
+
+CUPS only knows supply levels when the printer driver or backend reports them. Network printers that support SNMP usually do. Many host-based (GDI) USB printers, such as Ricoh SP 2xx models with the `ricoh-universal-ddst-driver`, do not report anything, so no supply sensor is created for them.
 
 ### Smart plug power management — NEW
 
