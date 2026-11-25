@@ -26,6 +26,7 @@ from .const import (
     DOMAIN,
 )
 from .ipp import CupsClient, CupsIppError
+from .supplies import parse_supplies
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -234,6 +235,7 @@ class CupsCoordinator(DataUpdateCoordinator[dict[str, Any]]):
                         else (jobs[0] if jobs else None)
                     ),
                     "printer_online": printer_online,
+                    "supplies": parse_supplies(printer),
                     "data_fresh": True,
                 }
 
