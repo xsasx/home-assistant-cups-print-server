@@ -52,6 +52,7 @@ Starting with `v0.1.0-beta.7`, the integration also supports an optional Home As
 - Automatic discovery of CUPS printer queues
 - One Home Assistant device per CUPS printer queue
 - Printer status
+- Problem sensor for printer alerts (toner low, paper out, paused queue…)
 - Number of queued print jobs
 - Current print job
 - Current job ID
@@ -146,6 +147,16 @@ The countdown is unavailable when no shutdown timer is active.
 The controls use the configured Home Assistant smart plug and do not require the printer to provide native power-management capabilities.
 
 **Current limitation:** The smart plug configuration and automation settings are shared across printer queues belonging to the same CUPS integration entry. Independent per-printer smart plugs are not yet supported within one entry.
+
+### Printer alerts
+
+| Binary sensor | Description |
+|---|---|
+| Problem | On when CUPS reports a printer alert. The `reasons` attribute lists the active alerts (for example `toner-low-warning`, `media-empty-error` or `paused`) and `state_message` holds the CUPS status message |
+
+Informational reasons such as `offline-report` or `connecting-to-device` are not treated as problems. The sensor is unavailable while the CUPS queue data cannot be refreshed, so an old alert is never shown as current.
+
+The **Status** sensor also exposes all current `state_reasons`, the CUPS `state_message` and whether the queue is `accepting_jobs`.
 
 ---
 
