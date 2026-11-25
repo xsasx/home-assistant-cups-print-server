@@ -53,6 +53,37 @@ class TestParseSupplies(unittest.TestCase):
             ],
         )
 
+    def test_real_ricoh_sp211_usb_response(self):
+        # Attributes returned by a real CUPS server for a USB Ricoh SP 211.
+        printer = {
+            "printer-make-and-model": "RICOH SP 211, 0.03",
+            "printer-state": 3,
+            "printer-state-reasons": "none",
+            "printer-state-message": "",
+            "marker-names": "Black Toner",
+            "marker-levels": 75,
+            "marker-types": "toner",
+            "marker-colors": "#000000",
+            "marker-low-levels": 10,
+            "marker-high-levels": 100,
+            "marker-change-time": 1795566728,
+        }
+        self.assertEqual(
+            mod.parse_supplies(printer),
+            [
+                {
+                    "index": 0,
+                    "name": "Black Toner",
+                    "type": "toner",
+                    "color": "#000000",
+                    "level": 75,
+                    "level_state": "ok",
+                    "low_level": 10,
+                    "high_level": 100,
+                }
+            ],
+        )
+
     def test_multiple_supplies_keep_their_order(self):
         supplies = mod.parse_supplies(
             {
