@@ -78,11 +78,17 @@
       },
       "power_countdown": {
         "name": "Temps avant extinction"
+      },
+      "supply_level": {
+        "name": "Consommable {index}"
       }
     },
     "binary_sensor": {
       "printer_online": {
         "name": "Imprimante joignable"
+      },
+      "printer_problem": {
+        "name": "Problème"
       }
     },
     "switch": {

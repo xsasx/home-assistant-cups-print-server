@@ -78,11 +78,17 @@
       },
       "power_countdown": {
         "name": "Time until power-off"
+      },
+      "supply_level": {
+        "name": "Supply {index}"
       }
     },
     "binary_sensor": {
       "printer_online": {
         "name": "Printer reachable"
+      },
+      "printer_problem": {
+        "name": "Problem"
       }
     },
     "switch": {

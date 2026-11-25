@@ -78,11 +78,17 @@
       },
       "power_countdown": {
         "name": "Verbleibende Ausschaltzeit"
+      },
+      "supply_level": {
+        "name": "Verbrauchsmaterial {index}"
       }
     },
     "binary_sensor": {
       "printer_online": {
         "name": "Drucker erreichbar"
+      },
+      "printer_problem": {
+        "name": "Problem"
       }
     },
     "switch": {

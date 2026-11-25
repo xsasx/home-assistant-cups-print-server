@@ -59,6 +59,8 @@ Starting with `v0.1.0-beta.7`, the integration also supports an optional Home As
 - Number of completed/printed pages
 - Last print job
 - Last print time
+- Supply levels (toner, ink, drum…) when reported by the printer driver
+- Problem sensor for printer alerts (toner low, paper out, paused queue…)
 - Detailed print-job information as entity attributes
 - Native Home Assistant timestamp handling
 - Translated printer and job states
@@ -108,7 +110,20 @@ For every discovered CUPS printer queue, the integration creates a Home Assistan
 
 | Binary sensor | Description |
 |---|---|
-| Printer reachable | Whether the physical printer accepts network connections |
+| Printer reachable | Whether the physical printer accepts network connections. Unavailable for USB printers and other device URIs that cannot be probed over TCP |
+| Problem | On when CUPS reports a printer alert. The `reasons` attribute lists the active alerts (for example `toner-low-warning`, `media-empty-error` or `paused`) and `state_message` holds the CUPS status message |
+
+The **Status** sensor also exposes all current `state_reasons`, the CUPS `state_message` and whether the queue is `accepting_jobs`.
+
+### Supply levels
+
+| Sensor | Description |
+|---|---|
+| *Supply name* (e.g. *Black Toner*) | Remaining level in percent, one sensor per supply reported by CUPS |
+
+Supply sensors are named after the supply reported by CUPS and are added automatically as soon as CUPS reports them, which is often after the first print job. Their attributes include the supply `type`, `color`, `low_level`, `high_level` and `level_state`. The sensor is *unknown* when CUPS only knows that some supply remains, without a percentage.
+
+CUPS only knows supply levels when the printer driver or backend reports them. Network printers that support SNMP usually do. Many host-based (GDI) USB printers, such as Ricoh SP 2xx models with the `ricoh-universal-ddst-driver`, do not report anything, so no supply sensor is created for them.
 
 Depending on the information supplied by CUPS and the print client, additional job information is available as entity attributes.
 
