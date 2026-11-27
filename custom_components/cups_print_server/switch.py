@@ -19,11 +19,11 @@ async def async_setup_entry(hass, entry, async_add_entities):
                 CupsPowerSwitch(coordinator, entry, queue),
                 CupsAutomationSwitch(
                     coordinator, entry, queue,
-                    CONF_AUTO_POWER_ON, "Automatisch einschalten",
+                    CONF_AUTO_POWER_ON,
                 ),
                 CupsAutomationSwitch(
                     coordinator, entry, queue,
-                    CONF_AUTO_POWER_OFF, "Automatisch ausschalten",
+                    CONF_AUTO_POWER_OFF,
                 ),
             ]
         )
@@ -36,11 +36,11 @@ class CupsBaseSwitch(CoordinatorEntity, SwitchEntity):
 
     _attr_has_entity_name = True
 
-    def __init__(self, coordinator, entry, queue, suffix, name):
+    def __init__(self, coordinator, entry, queue, suffix):
         super().__init__(coordinator)
         self.entry = entry
         self.queue = queue
-        self._attr_name = name
+        self._attr_translation_key = suffix
         self._attr_unique_id = f"{entry.entry_id}_{queue}_{suffix}"
 
     @property
@@ -56,7 +56,7 @@ class CupsPowerSwitch(CupsBaseSwitch):
     def __init__(self, coordinator, entry, queue):
         super().__init__(
             coordinator, entry, queue,
-            "power_control", "Drucker-Stromversorgung",
+            "power_control",
         )
 
     @property
@@ -81,8 +81,8 @@ class CupsPowerSwitch(CupsBaseSwitch):
 class CupsAutomationSwitch(CupsBaseSwitch):
     """Enable or disable automatic printer power management."""
 
-    def __init__(self, coordinator, entry, queue, key, name):
-        super().__init__(coordinator, entry, queue, key, name)
+    def __init__(self, coordinator, entry, queue, key):
+        super().__init__(coordinator, entry, queue, key)
         self.key = key
 
     @property

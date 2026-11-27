@@ -9,14 +9,25 @@
           "port": "Port",
           "use_ssl": "SSL verwenden"
         }
+      },
+      "reconfigure": {
+        "title": "CUPS Print Server",
+        "description": "Aktualisiere die Verbindung zu deinem CUPS-Druckserver.",
+        "data": {
+          "host": "Host",
+          "port": "Port",
+          "use_ssl": "SSL verwenden"
+        }
       }
     },
     "error": {
       "cannot_connect": "Verbindung zum CUPS-Server fehlgeschlagen.",
+      "no_printers": "Auf diesem CUPS-Server wurde keine Druckerwarteschlange gefunden.",
       "unknown": "Unerwarteter Fehler."
     },
     "abort": {
-      "already_configured": "Dieser CUPS-Server ist bereits konfiguriert."
+      "already_configured": "Dieser CUPS-Server ist bereits konfiguriert.",
+      "reconfigure_successful": "Die Neukonfiguration war erfolgreich."
     }
   },
   "entity": {
@@ -37,7 +48,10 @@
         "name": "Druckjobs in Warteschlange"
       },
       "current_job": {
-        "name": "Aktueller Druckjob"
+        "name": "Aktueller Druckjob",
+        "state": {
+          "no_job": "Kein Druckauftrag"
+        }
       },
       "current_job_id": {
         "name": "Aktuelle Job-ID"
@@ -64,6 +78,9 @@
       },
       "last_job_time": {
         "name": "Letzte Druckzeit"
+      },
+      "power_countdown": {
+        "name": "Verbleibende Ausschaltzeit"
       }
     },
     "binary_sensor": {
@@ -72,6 +89,22 @@
       },
       "printer_problem": {
         "name": "Problem"
+      }
+    },
+    "switch": {
+      "power_control": {
+        "name": "Drucker-Stromversorgung"
+      },
+      "auto_power_on": {
+        "name": "Automatisch einschalten"
+      },
+      "auto_power_off": {
+        "name": "Automatisch ausschalten"
+      }
+    },
+    "number": {
+      "power_off_delay": {
+        "name": "Ausschaltverzögerung"
       }
     }
   },

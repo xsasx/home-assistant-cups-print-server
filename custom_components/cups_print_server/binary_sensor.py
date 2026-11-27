@@ -25,7 +25,6 @@ BINARY_SENSOR_DESCRIPTIONS = (
     BinarySensorEntityDescription(
         key="printer_online",
         translation_key="printer_online",
-        name="Printer reachable",
         icon="mdi:printer-check",
     ),
 )

@@ -64,7 +64,7 @@ Starting with `v0.1.0-beta.7`, the integration also supports an optional Home As
 - Detailed print-job information as entity attributes
 - Native Home Assistant timestamp handling
 - Translated printer and job states
-- German and English translations
+- English, German and French translations
 - Diagnostics support
 - Home Assistant device registry integration
 
@@ -101,12 +101,16 @@ For every discovered CUPS printer queue, the integration creates a Home Assistan
 |---|---|
 | Status | Current CUPS printer state |
 | Queued jobs | Number of jobs currently waiting or processing |
-| Current job | Name of the current print job |
+| Current print job | Name of the current print job, or `no_job` (shown as *No print job*) when idle |
 | Current job ID | CUPS job ID |
 | Current job status | Current state of the active print job |
-| Pages completed | Number of pages completed for the current job |
-| Last job | Most recent print job |
+| Printed pages | Number of pages completed for the current job |
+| Last print job | Most recent print job |
 | Last print time | Timestamp of the most recent print job |
+
+| Binary sensor | Description |
+|---|---|
+| Printer reachable | Whether the physical printer accepts network connections |
 
 Depending on the information supplied by CUPS and the print client, additional job information is available as entity attributes.
 
@@ -148,10 +152,10 @@ When a smart plug is configured, the printer device includes additional controls
 | Entity | Type | Description |
 |---|---|---|
 | Printer power | Switch | Manually control the configured smart plug |
-| Automatic power on | Switch | Enable or disable power-on when a print job is detected |
-| Automatic power off | Switch | Enable or disable idle shutdown |
+| Automatic power-on | Switch | Enable or disable power-on when a print job is detected |
+| Automatic power-off | Switch | Enable or disable idle shutdown |
 | Power-off delay | Number | Configure the idle delay in minutes |
-| Remaining shutdown time | Sensor | Countdown until automatic power-off, in seconds |
+| Time until power-off | Sensor | Countdown until automatic power-off, in seconds |
 
 The countdown is unavailable when no shutdown timer is active.
 
@@ -337,7 +341,8 @@ Your directory should look similar to this:
         │   └── icon.png
         └── translations/
             ├── de.json
-            └── en.json
+            ├── en.json
+            └── fr.json
 ```
 
 Restart Home Assistant and add the integration through:
@@ -381,6 +386,7 @@ Currently included:
 
 - 🇬🇧 English
 - 🇩🇪 German
+- 🇫🇷 French
 
 Additional translations are welcome.
 
